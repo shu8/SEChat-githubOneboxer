@@ -1,0 +1,36 @@
+.ob-github {
+  padding: .8em 1.5em;
+  background-color: White;
+  color: #444444;
+}
+.ob-github-main img {
+  height: 32px;
+  width: 32px;
+  float: left;
+  margin-right: 4px;
+}
+.ob-github-main .title {
+  margin-bottom: .5em;
+  font-weight: 600;
+}
+.ob-github-main .title .title {
+  margin-bottom: .5em;
+  line-height: 1.1;
+}
+.ob-github-main .title .id,
+.ob-github-main-info .comments {
+  margin-bottom: .5em;
+  color: #aaa;
+}
+.ob-github-main-info {
+  color: #666666;
+}
+.ob-github-main-info .author {
+  font-weight: bold;
+}
+.ob-github-main-info time {
+  width: 87%;
+}
+.ob-github-main-info p {
+  font-weight: lighter;
+}
