@@ -22,6 +22,10 @@
   margin-bottom: .5em;
   color: #aaa;
 }
+.ob-github-main .label {
+    border: 1px solid black;
+    margin-left: 5px;
+}
 .ob-github-main-info {
   color: #666666;
 }
