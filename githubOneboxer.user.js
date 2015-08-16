@@ -4,7 +4,7 @@
 // @version      1.1
 // @description  Oneboxes links to Github repos, issues, or pull requests in Chat
 // @author       ᔕᖺᘎᕊ (http://stackexchange.com/users/4337810/)
-// @match        *://chat.stackoverfow.com/*
+// @match        *://chat.stackoverflow.com/*
 // @match        *://chat.meta.stackexchange.com/*
 // @match        *://chat.stackexchange.com/*
 // @require      http://timeago.yarp.com/jquery.timeago.js
