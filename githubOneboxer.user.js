@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SE Chat Github Oneboxer
 // @namespace    http://stackexchange.com/users/4337810/
-// @version      1.0
+// @version      1.1
 // @description  Oneboxes links to Github repos, issues, or pull requests in Chat
 // @author       ᔕᖺᘎᕊ (http://stackexchange.com/users/4337810/)
 // @match        *://chat.stackoverfow.com/*
@@ -10,7 +10,7 @@
 // @require      http://timeago.yarp.com/jquery.timeago.js
 // @grant        none
 // ==/UserScript==
-$('head').append('<link rel="stylesheet" type="text/css" href="https://rawgit.com/shu8/SEChat-githubOneboxer/master/style.css">'); //add stylesheet to head (CSS from http://meta.stackexchange.com/q/243259/260841)
+$('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/shu8/SEChat-githubOneboxer/master/style.css">'); //add stylesheet to head (CSS from http://meta.stackexchange.com/q/243259/260841)
 
 function replaceVars(url, details) { //Replace the {placeholders} with their actual values from the details array
     return url.replace(/{username}/, details.username).replace(/{repo_name}/, details.repo_name).replace(/{issue_number}/, details.issue_number).replace(/{pull_number}/, details.pull_number);
@@ -68,8 +68,18 @@ function getInfo(type, details, $element) {
                     creationTime = data.created_at,
                     url = data.html_url,
                     comments = data.comments,
-                    avatar = data.user.avatar_url;
-
+                    avatar = data.user.avatar_url,
+                    assignee = (data.assignee == null ? '<span class="milestone">not yet assigned</span>' : '<span class="milestone">assigned to <a href="'+data.assignee.url+'">'+data.assignee.login+'</a></span>'), //not a milestone, but same CSS, so same class as milestone!
+                    labels = (data.labels == null ? '' : data.labels),
+                    milestone = (data.milestone == null ? '<span class="milestone">no milestone</span>' : '<span class="milestone">'+data.milestone+' milestone</span>'); //get milestones; surround with span
+                
+                var labelSpan = ''; //get labels and suround them with spans for their own colour
+                if(labels!='') {
+                    $.each(labels, function(i,o) {
+                        labelSpan += "<span class='label' style='background-color:#"+o.color+";'>"+o.name+"</span>"; 
+                    });
+                }
+                
                 if (body.length > 519) { //trim the body if it's >= 520
                     body = body.substr(0, 520);
                 };
@@ -77,10 +87,11 @@ function getInfo(type, details, $element) {
                     "<img title='" + opener + "' src='" + avatar + "'>" +
                     "<a href='" + url + "' class='title'>" +
                     "<span class='title'>" + title + "</span></a>" +
-                    "&nbsp;<span class='id'>#" + number + "</span>" +
+                    "&nbsp;<span class='id'>#" + number + "</span>" + (labelSpan!='' ? labelSpan + milestone : milestone) + //if no labels, show milestone, else, show both
                     "<div class='ob-github-main-info'>" +
                     "<span class='author'>" + opener + "</span> opened this issue " +
-                    "<time class='timeago' datetime='" + creationTime + "' is='relative-time'></time><br><p>" +
+                    "<time class='timeago' datetime='" + creationTime + "' is='relative-time'></time>." +
+                    assignee + "<br><p>" +
                     body + "<span class='comments'>&nbsp;" + comments + " comments</span></p></div>" +
                     "</div>");
                 $("time.timeago").timeago();
