@@ -71,7 +71,7 @@ function getInfo(type, details, $element) {
                     avatar = data.user.avatar_url,
                     assignee = (data.assignee == null ? '<span class="milestone">not yet assigned</span>' : '<span class="milestone">assigned to <a href="'+data.assignee.url+'">'+data.assignee.login+'</a></span>'), //not a milestone, but same CSS, so same class as milestone!
                     labels = (data.labels == null ? '' : data.labels),
-                    milestone = (data.milestone == null ? '<span class="milestone">no milestone</span>' : '<span class="milestone">'+data.milestone+' milestone</span>'); //get milestones; surround with span
+                    milestone = (data.milestone == null ? '<span class="milestone">no milestone</span>' : '<span class="milestone">'+data.milestone.title+' milestone</span>'); //get milestones; surround with span
                 
                 var labelSpan = ''; //get labels and suround them with spans for their own colour
                 if(labels!='') {
