@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         SE Chat Github Oneboxer
 // @namespace    http://stackexchange.com/users/4337810/
-// @version      1.1
+// @version      1.1.1
 // @description  Oneboxes links to Github repos, issues, or pull requests in Chat
 // @author       ᔕᖺᘎᕊ (http://stackexchange.com/users/4337810/)
-// @match        *://chat.stackoverflow.com/*
+// @match        *://chat.stackoverfow.com/*
 // @match        *://chat.meta.stackexchange.com/*
 // @match        *://chat.stackexchange.com/*
 // @require      http://timeago.yarp.com/jquery.timeago.js
@@ -151,9 +151,11 @@ var observer = new MutationObserver(function(mutations) { //MutationObserver
             var $addedNode = $(mutation.addedNodes[i]);
             if ($addedNode.hasClass('message')) { //if the new node is a message
                 if ($addedNode.find('a').length) { //if there is a link in the message
-                    if ($addedNode.find('a:last').attr('href').indexOf('github') > -1) { //if the link is to github
-                        var link = $addedNode.find('a:last').attr('href'); //get the link
-                        extractFromUrlAndGetInfo(link, $addedNode); //pass URL and added node to the function which will go on to call useApi and add the onebox
+                    if($addedNode.text().trim().indexOf(' ') == -1) { //if there is no space (ie. nothing other than the link)
+                        if ($addedNode.find('a:last').attr('href').indexOf('github') > -1) { //if the link is to github
+                            var link = $addedNode.find('a:last').attr('href'); //get the link
+                            extractFromUrlAndGetInfo(link, $addedNode); //pass URL and added node to the function which will go on to call useApi and add the onebox
+                        }
                     }
                 }
             }
@@ -163,9 +165,11 @@ var observer = new MutationObserver(function(mutations) { //MutationObserver
 
 setTimeout(function() {
     $('.message').each(function() { //loop through EXISTING messages to find oneboxable messages
-        if ($(this).find('a[href*="github.com"]').length) {
-            var link = $(this).find('a[href*="github.com"]').attr('href');
-            extractFromUrlAndGetInfo(link, $(this)); //pass URL and message to the function which will go on to call useApi and add the onebox
+        if ($(this).find('a[href*="github.com"]').length) { //if there is a link to github
+            if($(this).text().trim().indexOf(' ') == -1) { //if there is no space (ie. nothing other than the link)
+                var link = $(this).find('a[href*="github.com"]').attr('href');
+                extractFromUrlAndGetInfo(link, $(this)); //pass URL and message to the function which will go on to call useApi and add the onebox
+            }
         }
     });
     setTimeout(function() { //use the timeago plugin to add relative times to the onebox for EXISTING messages
