@@ -1,7 +1,8 @@
+/** @preserve
 // ==UserScript==
 // @name         SE Chat Github Oneboxer
 // @namespace    http://stackexchange.com/users/4337810/
-// @version      1.1.1
+// @version      1.1.2
 // @description  Oneboxes links to Github repos, issues, or pull requests in Chat
 // @author       ᔕᖺᘎᕊ (http://stackexchange.com/users/4337810/)
 // @match        *://chat.stackoverfow.com/*
@@ -10,6 +11,7 @@
 // @require      http://timeago.yarp.com/jquery.timeago.js
 // @grant        none
 // ==/UserScript==
+*/
 $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/shu8/SEChat-githubOneboxer/master/style.css">'); //add stylesheet to head (CSS from http://meta.stackexchange.com/q/243259/260841)
 
 function replaceVars(url, details) { //Replace the {placeholders} with their actual values from the details array
@@ -69,25 +71,25 @@ function getInfo(type, details, $element) {
                     url = data.html_url,
                     comments = data.comments,
                     avatar = data.user.avatar_url,
-                    assignee = (data.assignee == null ? '<span class="milestone">not yet assigned</span>' : '<span class="milestone">assigned to <a href="'+data.assignee.url+'">'+data.assignee.login+'</a></span>'), //not a milestone, but same CSS, so same class as milestone!
+                    assignee = (data.assignee == null ? '<span class="milestone">not yet assigned</span>' : '<span class="milestone">assigned to <a href="' + data.assignee.url + '">' + data.assignee.login + '</a></span>'), //not a milestone, but same CSS, so same class as milestone!
                     labels = (data.labels == null ? '' : data.labels),
-                    milestone = (data.milestone == null ? '<span class="milestone">no milestone</span>' : '<span class="milestone">'+data.milestone.title+' milestone</span>'); //get milestones; surround with span
-                
+                    milestone = (data.milestone == null ? '<span class="milestone">no milestone</span>' : '<span class="milestone">' + data.milestone.title + ' milestone</span>'); //get milestones; surround with span
+
                 var labelSpan = ''; //get labels and suround them with spans for their own colour
-                if(labels!='') {
-                    $.each(labels, function(i,o) {
-                        labelSpan += "<span class='label' style='background-color:#"+o.color+";'>"+o.name+"</span>"; 
+                if (labels != '') {
+                    $.each(labels, function(i, o) {
+                        labelSpan += "<span class='label' style='background-color:#" + o.color + ";'>" + o.name + "</span>";
                     });
                 }
-                
+
                 if (body.length > 519) { //trim the body if it's >= 520
                     body = body.substr(0, 520);
-                };
+                }
                 $element.find('.content').html("<div class='ob-github ob-github-main'>" + //make the onebox
                     "<img title='" + opener + "' src='" + avatar + "'>" +
                     "<a href='" + url + "' class='title'>" +
                     "<span class='title'>" + title + "</span></a>" +
-                    "&nbsp;<span class='id'>#" + number + "</span>" + (labelSpan!='' ? labelSpan + milestone : milestone) + //if no labels, show milestone, else, show both
+                    "&nbsp;<span class='id'>#" + number + "</span>" + (labelSpan != '' ? labelSpan + milestone : milestone) + //if no labels, show milestone, else, show both
                     "<div class='ob-github-main-info'>" +
                     "<span class='author'>" + opener + "</span> opened this issue " +
                     "<time class='timeago' datetime='" + creationTime + "' is='relative-time'></time>." +
@@ -144,20 +146,19 @@ function getInfo(type, details, $element) {
     }
 }
 
-var observer = new MutationObserver(function(mutations) { //MutationObserver
+var observer = new MutationObserver(function(mutations) { //MutationObserver; reviewed @ CR: http://codereview.stackexchange.com/a/101207/41415!
     mutations.forEach(function(mutation) {
-        var i;
-        for (i = 0; i < mutation.addedNodes.length; i++) {
+        var length =  mutation.addedNodes.length;
+        for (var i = 0; i < length; i++) {
             var $addedNode = $(mutation.addedNodes[i]);
-            if ($addedNode.hasClass('message')) { //if the new node is a message
-                if ($addedNode.find('a').length) { //if there is a link in the message
-                    if($addedNode.text().trim().indexOf(' ') == -1) { //if there is no space (ie. nothing other than the link)
-                        if ($addedNode.find('a:last').attr('href').indexOf('github') > -1) { //if the link is to github
-                            var link = $addedNode.find('a:last').attr('href'); //get the link
-                            extractFromUrlAndGetInfo(link, $addedNode); //pass URL and added node to the function which will go on to call useApi and add the onebox
-                        }
-                    }
-                }
+            if (!$addedNode.hasClass('message')) { return; } //don't run if new node is NOT a .message
+
+            var $lastanchor = $addedNode.find('a').last();
+            if (!$lastanchor) { return; } //don't run if there is no link
+
+            var lastanchorHref = $lastanchor.attr('href');                
+            if ($addedNode.text().trim().indexOf(' ') == -1 && lastanchorHref.indexOf('github.com') > -1) { //if there are no spaces (ie. only one word) and if the link is to github...
+                extractFromUrlAndGetInfo(lastanchorHref, $addedNode); //pass URL and added node to the function which will go on to call useApi and add the onebox
             }
         }
     });
@@ -165,18 +166,18 @@ var observer = new MutationObserver(function(mutations) { //MutationObserver
 
 setTimeout(function() {
     $('.message').each(function() { //loop through EXISTING messages to find oneboxable messages
-        if ($(this).find('a[href*="github.com"]').length) { //if there is a link to github
-            if($(this).text().trim().indexOf(' ') == -1) { //if there is no space (ie. nothing other than the link)
-                var link = $(this).find('a[href*="github.com"]').attr('href');
-                extractFromUrlAndGetInfo(link, $(this)); //pass URL and message to the function which will go on to call useApi and add the onebox
-            }
-        }
+        var link = $(this).find('a[href*="github.com"]');        
+        if (!link.length || $(this).text().trim().indexOf(' ') > -1) { //if there is a link to github AND if there is no space (ie. nothing other than the link)
+            return;
+        }        
+        extractFromUrlAndGetInfo(link.attr('href'), $(this)); //pass URL and message to the function which will go on to call useApi and add the onebox
     });
+    
     setTimeout(function() { //use the timeago plugin to add relative times to the onebox for EXISTING messages
         $("time.timeago").timeago();
     }, 1000);
 
-    observer.observe($('#chat')[0], { //observe with the mutation observer for NEW messages
+    observer.observe(document.getElementById('chat'), { //observe with the mutation observer for NEW messages
         childList: true,
         subtree: true
     });
