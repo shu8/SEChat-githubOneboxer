@@ -83,7 +83,7 @@ function getInfo(type, details, $element) {
                 if (body.length > 519) { //trim the body if it's >= 520
                     body = body.substr(0, 520);
                 };
-                $element.html("<div class='ob-github ob-github-main'>" + //make the onebox
+                $element.find('.content').html("<div class='ob-github ob-github-main'>" + //make the onebox
                     "<img title='" + opener + "' src='" + avatar + "'>" +
                     "<a href='" + url + "' class='title'>" +
                     "<span class='title'>" + title + "</span></a>" +
@@ -105,7 +105,7 @@ function getInfo(type, details, $element) {
                     url = data.url,
                     avatar = data.owner.avatar_url,
                     creationTime = data.created_at;
-                $element.html("<div class='ob-github ob-github-main'>" + //make the onebox
+                $element.find('.content').html("<div class='ob-github ob-github-main'>" + //make the onebox
                     "<img title='" + owner + "' src='" + avatar + "'>" +
                     "<a href='" + url + "' class='title'>" +
                     "<span class='title'>" + name + "</span></a>" +
@@ -128,7 +128,7 @@ function getInfo(type, details, $element) {
                     avatar = data.head.user.avatar_url,
                     comments = data.comments;
 
-                $element.html("<div class='ob-github ob-github-main'>" +
+                $element.find('.content').html("<div class='ob-github ob-github-main'>" +
                     "<img title='" + creator + "' src='" + avatar + "'>" +
                     "<a href='" + url + "' class='title'>" +
                     "<span class='title'>" + title + "</span></a>" +
