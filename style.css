@@ -23,7 +23,9 @@
   color: #aaa;
 }
 .ob-github-main .label {
-    border: 1px solid black;
+    border: 0;
+    padding: 3px 4px;
+    border-radius: 2px;
     margin-left: 5px;
 }
 .ob-github-main .milestone {

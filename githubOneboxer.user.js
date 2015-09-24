@@ -104,7 +104,7 @@ function getInfo(type, details, $element) {
                 var owner = data.owner.login,
                     name = data.name,
                     description = data.description,
-                    url = data.url,
+                    url = data.html_url,
                     avatar = data.owner.avatar_url,
                     creationTime = data.created_at;
                 $element.find('.content').html("<div class='ob-github ob-github-main'>" + //make the onebox
