@@ -17,7 +17,7 @@ $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgi
 var urlRegex = /^(?:([^:\/?\#]+):)?(?:\/\/([^\/?\#]*))?([^?\#]*)(?:\?([^\#]*))?(?:\#(.*))?/
 
 function replaceVars(url, details) { //Replace the {placeholders} with their actual values from the details array
-    return url.replace(/{username}/, details.username).replace(/{repo_name}/, details.repo_name).replace(/{issue_number}/, details.issue_number).replace(/{pull_number}/, details.pull_number);
+    return url.replace(/\{username}/, details.username).replace(/\{repo_name}/, details.repo_name).replace(/\{issue_number}/, details.issue_number).replace(/\{pull_number}/, details.pull_number);
 }
 
 function useApi(url, details, callback) { //use the Github API to get the info
