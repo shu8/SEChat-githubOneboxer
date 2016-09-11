@@ -9,6 +9,7 @@
  // @match        *://chat.meta.stackexchange.com/*
  // @match        *://chat.stackexchange.com/*
  // @require      http://timeago.yarp.com/jquery.timeago.js
+ // @run-at       document-idle
  // @grant        none
  // ==/UserScript==
  */
@@ -23,12 +24,13 @@ function replaceVars(url, details) { //Replace the {placeholders} with their act
 function useApi(url, details, callback) { //use the Github API to get the info
     $.ajax({
         url: replaceVars(url, details), //the URL should be the replaced version
+        dataType: 'jsonp', // To work around the SOP put up by github's pi
         headers: {
             "Accept": "application/vnd.github.VERSION.html", //to get HTML versions of body, and not markdown
             "User-Agent": "shu8" //https://developer.github.com/v3/#user-agent-required
         },
         success: function (data) {
-            callback(data);
+            callback(data.data);
         }
     });
 }
@@ -188,21 +190,29 @@ var observer = new MutationObserver(function (mutations) { //MutationObserver; r
     });
 });
 
-setTimeout(function () {
-    $('.message').each(function () { //loop through EXISTING messages to find oneboxable messages
-        var link = $(this).find('a[href*="github.com"]');
-        if (!link.length || $(this).text().trim().indexOf(' ') > -1) { //if there is a link to github AND if there is no space (ie. nothing other than the link)
-            return;
-        }
-        extractFromUrlAndGetInfo(link.attr('href'), $(this)); //pass URL and message to the function which will go on to call useApi and add the onebox
-    });
+$.ajax({
+    url: 'http://chat.meta.stackexchange.com/events',
+    type: 'POST',
+    data: {
+        fkey: fkey().fkey
+    }
+}).done(function () {
+    setTimeout(function() {
+        $('.message').each(function () { //loop through EXISTING messages to find oneboxable messages
+            var link = $(this).find('a[href*="github.com"]');
+	    if (!link.length || $(this).text().trim().indexOf(' ') > -1) { //if there is a link to github AND if there is no space (ie. nothing other than the link)
+                return;
+  	    }
+	    extractFromUrlAndGetInfo(link.attr('href'), $(this)); //pass URL and message to the function which will go on to call useApi and add the onebox
+        });
 
-    setTimeout(function () { //use the timeago plugin to add relative times to the onebox for EXISTING messages
-        $("time.timeago").timeago();
-    }, 1000);
+        setTimeout(function () { //use the timeago plugin to add relative times to the onebox for EXISTING messages
+	    $("time.timeago").timeago();
+        }, 1000);
 
-    observer.observe(document.getElementById('chat'), { //observe with the mutation observer for NEW messages
-        childList: true,
-        subtree: true
-    });
-}, 1000);
+        observer.observe(document.getElementById('chat'), { //observe with the mutation observer for NEW messages
+	    childList: true,
+    	    subtree: true
+        });
+    }, 2500);
+});
